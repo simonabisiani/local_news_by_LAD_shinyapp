@@ -12,25 +12,31 @@ j_events <- read_delim("journalism_events.csv",
                        locale = locale(), trim_ws = TRUE)
 
 j_events <- j_events %>% 
-    rename("Organiser" = node,
-           "Event" = event,
-           "Organiser location" = node_loc_coord,
-           "Event location" = ev_loc_city,
-           "country" = ev_loc_country,
-           "Type" = ev_type,
-           "Cost" = ev_cost,
-           "URL" = ev_url,
-           "Start" = start_date,
-           "End" = end_date,
-           "Mode" = mode) %>% 
-    separate(ev_loc_coord, c("Latitude", "Longitude"), sep = ", ") %>% 
-    mutate("Latitude" = as.numeric(Latitude),
-           "Longitude" = as.numeric(Longitude),
-            "Cost" = ifelse(is.na(Cost), "not known", Cost)) 
+  rename("Organiser" = node,
+         "Event" = event,
+         "Organiser coordinates" = node_loc_coord,
+         "City" = ev_loc_city,
+         "Country" = ev_loc_country,
+         "Type" = ev_type,
+         "Cost" = ev_cost,
+         "URL" = ev_url,
+         "Start" = start_date,
+         "End" = end_date,
+         "Mode" = mode,
+         "Topic" = type) %>% 
+  separate(ev_loc_coord, c("Latitude", "Longitude"), sep = ", ") %>% 
+  mutate("Latitude" = as.numeric(Latitude),
+         "Longitude" = as.numeric(Longitude),
+         "Cost" = ifelse(is.na(Cost), "not known", Cost),
+         "Organiser" = ifelse(is.na(Organiser), "not known", Organiser)) %>% 
+  select(-c(`Organiser coordinates`, node_type)) 
     
 
+write.csv(j_events, "j_event.csv")
+
+
 j_table <- j_events %>% 
-    select(Event, Start, End, Organiser, `Event location`, country, URL, Cost, Type, Mode) %>% 
+    select(Event, Start, End, Organiser, City, Country, URL, Cost, Type, Mode, Topic) %>% 
     mutate(Cost = ifelse(is.na(Cost), "not known", Cost),
            Organiser = ifelse(is.na(Organiser), "not known", Organiser))
 
@@ -38,7 +44,8 @@ j_table <- j_events %>%
 vars <- c(
     "Type of event" = "Type",
     "Mode" = "Mode",
-    "Cost" = "Cost"
+    "Cost" = "Cost",
+    "Topic" = "Topic"
 )
 
 
@@ -51,7 +58,7 @@ vars <- c(
 # here is where the user interface architecture is built
       
       # the navbar
-ui <- navbarPage("Journalism Events, Awards, and Conferences in late 2021 to 2022/23", id="nav", theme = shinytheme("journal"),
+ui <- navbarPage("Journalism Events, Awards, and Conferences in late 2021 to 2022/23", id="nav", theme = shinytheme("paper"),
            # the interactive map
            tabPanel("Interactive map",
                     div(class="outer",
@@ -76,7 +83,13 @@ ui <- navbarPage("Journalism Events, Awards, and Conferences in late 2021 to 202
                
                # with the different filter options
                fluidRow(
-                   column(3,
+                 column(3,
+                        selectInput("Topic",
+                                    "Topic:",
+                                    c("All",
+                                      unique(as.character(j_table$Topic))))
+                 ),
+                 column(3,
                           selectInput("Organiser",
                                       "Organiser:",
                                       c("All",
@@ -117,7 +130,7 @@ pal <- colorFactor("Accent", j_events$Mode)
      output$mymap <- renderLeaflet({
         j_events %>% 
         leaflet() %>%
-        addProviderTiles(providers$CartoDB.PositronNoLabels) %>% 
+        addProviderTiles(providers$CartoDB.Positron) %>% 
             addCircleMarkers(~Longitude, ~Latitude, layerId=~Event,
                                               stroke= FALSE, opacity= 0.7, color=pal, radius = 6.5,
                                               fillColor = pal,
@@ -128,7 +141,10 @@ pal <- colorFactor("Accent", j_events$Mode)
     # Modify marker colours depending on user input
     observe({
       colorBy <- input$color
-      
+      if (colorBy == "Topic") {
+        colorData <- j_events[[colorBy]]
+        pal <- colorFactor("Set2", colorData)
+      } 
       if (colorBy == "Mode") {
         colorData <- j_events[[colorBy]]
         pal <- colorFactor("Set2", colorData)
@@ -146,13 +162,13 @@ pal <- colorFactor("Accent", j_events$Mode)
       leafletProxy("mymap", data = j_events) %>%
         clearShapes() %>%
         addCircleMarkers(~Longitude, ~Latitude, layerId=~Event,
-                   stroke= FALSE, opacity= 0.7, color=pal(colorData), radius = 6.5,
-                   fillColor = pal(colorData),
-                   fillOpacity = 0.7,
-        label = ~sprintf("<strong>%s</strong><br/>%s<br/>Start: %s<br/>End: %s</br>Type: %s</br>Mode: %s</br>Cost: %s</br>", Event, Organiser, Start, End, Type, Mode, Cost) %>% lapply(htmltools::HTML),
-        labelOptions = labelOptions(
-        style = list("font-weight" = "normal", padding = "3px 8px"),
-        textsize = "11px", direction = "auto")) %>% 
+                         stroke= FALSE, opacity= 0.7, color=pal(colorData), radius = 6.5,
+                         fillColor = pal(colorData),
+                         fillOpacity = 0.7,
+                         label = ~sprintf("<strong>%s</strong><br/>%s<br/>Start: %s<br/>End: %s</br>Type: %s</br>Mode: %s</br>Cost: %s</br>City: %s</br> ", Event, Organiser, Start, End, Type, Mode, Cost, City) %>% lapply(htmltools::HTML),
+                         labelOptions = labelOptions(
+                           style = list("font-weight" = "normal", padding = "3px 8px"),
+                           textsize = "11px", direction = "auto")) %>% 
         addLegend("bottomleft", pal=pal, values=colorData, title=colorBy, opacity = 1,
                   layerId="colorLegend")
     })
@@ -166,6 +182,9 @@ pal <- colorFactor("Accent", j_events$Mode)
           mutate(URL = paste0("<a href='", URL,"' target='_blank'>", URL,"</a>"))
         
         
+        if (input$Topic != "All") {
+          j_table <- j_table[j_table$Topic == input$Topic,]
+        }
         if (input$Organiser != "All") {
             j_table <- j_table[j_table$Organiser == input$Organiser,]
         }
