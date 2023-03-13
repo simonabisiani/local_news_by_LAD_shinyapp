@@ -5,50 +5,39 @@ library(shinythemes)
 library(htmltools)
 library(RColorBrewer)
 
-
-
-j_events <- read_delim("journalism_events.csv", 
-                       delim = ";", escape_double = FALSE,  
+lad_j <- read_delim("titles_by_lad.csv", 
+                       delim = ",", escape_double = FALSE,  
                        locale = locale(), trim_ws = TRUE)
 
-j_events <- j_events %>% 
-  rename("Organiser" = node,
-         "Event" = event,
-         "Organiser coordinates" = node_loc_coord,
-         "City" = ev_loc_city,
-         "Country" = ev_loc_country,
-         "Type" = ev_type,
-         "Cost" = ev_cost,
-         "URL" = ev_url,
-         "Start" = start_date,
-         "End" = end_date,
-         "Mode" = mode,
-         "Topic" = type) %>% 
-  separate(ev_loc_coord, c("Latitude", "Longitude"), sep = ", ") %>% 
-  mutate("Latitude" = as.numeric(Latitude),
-         "Longitude" = as.numeric(Longitude),
-         "Cost" = ifelse(is.na(Cost), "not known", Cost),
-         "Organiser" = ifelse(is.na(Organiser), "not known", Organiser)) %>% 
-  select(-c(`Organiser coordinates`, node_type)) 
-    
+lad_j <- lad_j %>% 
+  rename("Local Authority District" = LAD,
+         "Number of titles" = n) 
+# %>% 
+#   separate(ev_loc_coord, c("Latitude", "Longitude"), sep = ", ") %>% 
+#   mutate("Latitude" = as.numeric(Latitude),
+#          "Longitude" = as.numeric(Longitude),
+#          "Cost" = ifelse(is.na(Cost), "not known", Cost),
+#          "Organiser" = ifelse(is.na(Organiser), "not known", Organiser)) %>% 
+#   select(-c(`Organiser coordinates`, node_type)) 
+#     
+# 
+# write.csv(j_events, "j_event.csv")
+# 
+# 
+# j_table <- j_events %>% 
+#     select(Event, Start, End, Organiser, City, Country, URL, Cost, Type, Mode, Topic) %>% 
+#     mutate(Cost = ifelse(is.na(Cost), "not known", Cost),
+#            Organiser = ifelse(is.na(Organiser), "not known", Organiser))
+# 
+# # Choices for drop-downs
+# vars <- c(
+#     "Type of event" = "Type",
+#     "Mode" = "Mode",
+#     "Cost" = "Cost",
+#     "Topic" = "Topic"
+# )
 
-write.csv(j_events, "j_event.csv")
-
-
-j_table <- j_events %>% 
-    select(Event, Start, End, Organiser, City, Country, URL, Cost, Type, Mode, Topic) %>% 
-    mutate(Cost = ifelse(is.na(Cost), "not known", Cost),
-           Organiser = ifelse(is.na(Organiser), "not known", Organiser))
-
-# Choices for drop-downs
-vars <- c(
-    "Type of event" = "Type",
-    "Mode" = "Mode",
-    "Cost" = "Cost",
-    "Topic" = "Topic"
-)
-
-
+directory_geo_final <- readRDS("directory_geo_final.rds")
 
 
 
