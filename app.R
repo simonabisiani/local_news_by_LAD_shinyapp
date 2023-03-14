@@ -55,7 +55,7 @@ vars <- c(
 
 
 # polygons
-library(geojsonio)
+library(geojsonio) # struggling to install geojsonio on Linux
 map <- geojson_read("Local_Authority_Districts_(December_2022)_Boundaries_UK_BUC.geojson", what = "sp")
 merged_data <- merge(map, map_data, by = "LAD22NM")
 merged_geojson <- geojson_json(merged_data, lat = "Latitude", lon = "Longitude")
@@ -127,7 +127,8 @@ pal <- colorFactor("Accent", map_data$`Number.of.titles`)
             #                                   stroke= FALSE, opacity= 0.7, color=pal, radius = 6.5,
             #                                   fillColor = pal,
             #                                   fillOpacity = 0.7) %>% 
-        setView(lng = -3.2765753, lat = 54.7023545, zoom = 6)
+        setView(lng = -3.2765753, lat = 54.7023545, zoom = 6) %>% 
+        semMaxBounds(bounds) 
      })
 
     # Modify marker colours depending on user input
