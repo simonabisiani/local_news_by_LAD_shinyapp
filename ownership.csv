@@ -1,0 +1,58 @@
+Owner,tot_owner,perc_owner,cumsum
+City Publishing Ltd,1,0.1,0.1
+Barrnon Media,1,0.1,0.2
+W Y Crichton & Co Ltd,1,0.1,0.30000000000000004
+Higgs Group,1,0.1,0.4
+Holderness Newspaper Limited,1,0.1,0.5
+Newtownards Chronicle Ltd,1,0.1,0.6000000000000001
+Credible Media,1,0.1,0.7000000000000001
+The Shetland Times Limited,1,0.1,0.8
+Southwark News Ltd,1,0.1,0.9
+The St Ives Printing and Publishing Company Ltd,1,0.1,1
+Stair Estates,1,0.1,1.1
+Teesdale Mercury Ltd,1,0.1,1.2000000000000002
+Orkney Media Group,1,0.1,1.3
+The Press News Limited,1,0.1,1.4000000000000001
+The Wokingham Paper Ltd,1,0.1,1.5
+West Highland Publishing Company Limited,1,0.1,1.6
+Standish Media Services Ltd,1,0.1,1.7000000000000002
+Woking News and Mail Ltd,1,0.1,1.8
+Cyfryngau Cymru Cyf,1,0.1,1.9000000000000001
+Newshound Media Limited,1,0.1,2
+Your Local Paper Ltd,1,0.1,2.1
+Edward Hodgett Ltd,2,0.2,2.3000000000000003
+Acredula Group,2,0.2,2.5
+D E Alexander & Sons Ltd,2,0.2,2.7
+Argyll Media,2,0.2,2.9000000000000004
+GH Smith & Son Ltd,2,0.2,3.1
+Chronicle Publications Limited,2,0.2,3.3000000000000003
+Hampshire Media Ltd,2,0.2,3.5
+Quest Media Network Ltd,2,0.2,3.7
+One Media and Creative UK Ltd,2,0.2,3.9000000000000004
+Heads (Congleton),3,0.2,4.1000000000000005
+Belfast Media Group,3,0.2,4.3
+DNG Online Limited,3,0.2,4.5
+Independent News and Media Ltd,3,0.2,4.7
+Cheadle and Tean Times Ltd,3,0.2,4.9
+New Journal Enterprises Ltd,3,0.2,5.1000000000000005
+Regional Media Ltd,3,0.2,5.300000000000001
+Gateway Newspapers Ltd,3,0.2,5.5
+Wyvex Media Ltd,4,0.3,5.800000000000001
+Herald News International,4,0.3,6.1000000000000005
+North-West News Group,4,0.3,6.4
+Peter Masters,4,0.3,6.7
+DC Thomson & Company Limited,5,0.4,7.1000000000000005
+Baylis Media Ltd,5,0.4,7.5
+Captial Media/Tindle,5,0.4,7.9
+Waypride Ltd,8,0.7,8.6
+Street Runners Ltd,10,0.8,9.4
+Independent,10,0.8,10.200000000000001
+Alpha Newspaper Group,13,1.1,11.3
+Bullivant Media Ltd,15,1.2,12.5
+Midland News Association,17,1.4,13.9
+Iliffe Media,71,5.9,19.8
+Tindle Newspapers Ltd,74,6.2,26
+Presumed independent,156,13,39
+National World,178,14.8,53.800000000000004
+Reach PLC,211,17.6,71.4
+Newsquest PLC,304,25.3,96.7
