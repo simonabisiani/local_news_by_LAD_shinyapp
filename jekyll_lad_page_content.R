@@ -45,7 +45,9 @@ data <- counts_for_lads %>%
   left_join(titles_in_lads, by = "LAD") %>% 
   mutate(path =   str_replace_all(LAD, " ", "_"),
          path =   str_replace_all(path, ",", ""),
-         path = str_to_lower(path))
+         path = str_to_lower(path)) %>% 
+  mutate(across(.cols = everything(), ~replace_na(., ""))) %>% 
+  arrange(LAD)
 
 
 # Loop through each observation and generate a Markdown file for it
@@ -74,4 +76,38 @@ data$file_path <- paste(data$path, "/index.md", sep = "")
   
 data$LAD <- sprintf("[%s](%s)", data$LAD, data$file_path) 
 data <- data %>% select(-c(path, file_path, Publication))
-kable(data[1:2,], col.names = c("Local Authority District", "Number of titles","Owners"))
+
+library(kableExtra)
+dt <- kbl(data[,1:4], col.names = c("Local Authority District", "Number of titles", "Publication", "Owners"))
+dt %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% 
+  scroll_box(width = "100%", height = "600px") %>% 
+  save_kable(file = "table1.html", self_contained = T)
+
+saveWidget(table, "table.html")
+
+library(DT)
+dt <- datatable(data[,1:4], colnames = c("Local Authority District", "Number of titles", "Publication", "Owners"), 
+                options = list(paging = TRUE, ordering = TRUE, searching = TRUE, info = FALSE),           
+                callback = JS('table.on("click", "td", function() {
+                    $(this).toggleClass("selected");
+                });'), elementId = "my-table")
+library(htmlwidgets)
+saveWidget(dt, "my_table.html")
+
+library(reactable)
+data <- iris[10:29, ]
+orange_pal <- function(x) rgb(colorRamp(c("#ffe4cc", "#ff9500"))(x), maxColorValue = 255)
+
+dt2 <- reactable(
+  data,
+  columns = list(
+    Petal.Length = colDef(style = function(value) {
+      normalized <- (value - min(data$Petal.Length)) / (max(data$Petal.Length) - min(data$Petal.Length))
+      color <- orange_pal(normalized)
+      list(background = color)
+    })
+  )
+)
+
+saveWidget(dt2, "reactable.html")
