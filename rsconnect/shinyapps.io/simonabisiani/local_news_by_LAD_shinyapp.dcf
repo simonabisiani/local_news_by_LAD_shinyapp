@@ -1,0 +1,14 @@
+name: local_news_by_LAD_shinyapp
+title: local_news_by_LAD_shinyapp
+username:
+account: simonabisiani
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8591783
+bundleId: 6968798
+url: https://simonabisiani.shinyapps.io/local_news_by_LAD_shinyapp/
+when: 1679009433.37226
+lastSyncTime: 1679009433.37229
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data_for_flourish_map.R|directory_geo_final.rds|directory_with_hyperlocals.RDS|first_preview.jpg|jekyll_lad_page_content.R|journalism_events.csv|LAD_DEC_2022_UK_BFE.shp|Local_Authority_Districts_(December_2022)_Boundaries_UK_BFE.csv|Local_Authority_Districts_(December_2022)_Boundaries_UK_BFE.geojson|Local_Authority_Districts_(December_2022)_Boundaries_UK_BUC.geojson|merged_shapefile.shp|monopolies.csv|my_table.html|ownership.csv|ownership_analysis.R|ownership_shares.csv|reactable.html|README.md|table1.html|test/test.R|titles_by_lad.csv|twitter_handles.RDS|urls.RDs|_observations
