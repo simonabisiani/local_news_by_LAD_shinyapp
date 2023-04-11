@@ -85,7 +85,8 @@ me_pinf <- full_join(my_directory_clean, pinf_to_add_modify, by = c("Publication
 
 # put it together
 not_me <- anti_join(PINF_clean, me_pinf, by = c("Title" = "Publication"))
-not_pinf <- anti_join(me_pinf, PINF_clean, by = c("Publication" = "Title"))
+pinf_to_add <- simona_errors |> filter(str_detect(...12, "Max"))
+not_pinf <- anti_join(me_pinf, PINF_clean, by = c("Publication" = "Title")) |> anti_join(pinf_to_add, by = "Publication") |> filter(!str_detect(`Active/Closed`, "losed")|is.na(`Active/Closed`))
 
 # my directory final polishing (fix owner, remove redundant columns, ...)
 me_final <- me_pinf |> 
