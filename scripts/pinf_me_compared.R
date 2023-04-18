@@ -1,8 +1,15 @@
 library(tidyverse)
 library(readr)
 
-PINF_data <- read_delim("files/PINF_data.csv",
-                        delim = ";", escape_double = FALSE, trim_ws = TRUE)
+PINF_data <- read_delim(
+  "files/PINF_data.csv",
+  delim = ";",
+  escape_double = FALSE,
+  trim_ws = TRUE
+)
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#ANALYSIS SUPPLIED TO PINF
 
 # my_data <- read_delim("files/observations.csv",
 #                            delim = ";", escape_double = FALSE, trim_ws = TRUE)
@@ -47,9 +54,9 @@ PINF_data <- read_delim("files/PINF_data.csv",
 # openxlsx::write.xlsx(dataset_names, file = 'PINF_Simona_inconsistencies.xlsx')
 
 
-###
-
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # FOLLOWING A MANUAL REVIEW OF ALL INCONSISTENCIES BETWEEN ME AND PINF, LET'S FIX MY DIRECTORY
+
 simona_errors <-
   read_csv("files/PINF_Simona_inconsistencies - Missing_in_PINF.csv")
 pinf_integrations <-
@@ -57,50 +64,73 @@ pinf_integrations <-
 my_directory <-
   read_csv("files/Local news UK database - Titles.csv")
 
-radio_tv <- PINF_data |> filter(str_detect(`Media Type`, "TV|Radio"))
+radio_tv <-
+  PINF_data |> filter(str_detect(`Media Type`, "TV|Radio"))
 closed <- PINF_data |> filter(str_detect(`Active/Closed`, "Closed"))
 
 # cleanup PINF
-remove_from_PINF <- pinf_integrations |> 
-  filter(Action =="N") 
+remove_from_PINF <- pinf_integrations |>
+  filter(Action == "N")
 
-PINF_clean <- 
+PINF_clean <-
   PINF_data |>
-  anti_join(radio_tv, by = "Title") |> 
-  anti_join(closed, by = "Title") |> 
+  anti_join(radio_tv, by = "Title") |>
+  anti_join(closed, by = "Title") |>
   anti_join(remove_from_PINF, by = "Title")
 
-pinf_to_add_modify <- pinf_integrations |> 
+pinf_to_add_modify <- pinf_integrations |>
   filter(Action %in% c("A", "M"))
 
 # cleanup me
-remove_simona <- simona_errors |> 
-  filter(str_detect(...12, paste0(c("losed", "IPL", "remove", "art of"), collapse = "|")))
+remove_simona <- simona_errors |>
+  filter(str_detect(...12, paste0(
+    c("losed", "IPL", "remove", "art of"), collapse = "|"
+  )))
 
-my_directory_clean <- my_directory |> 
+my_directory_clean <- my_directory |>
   anti_join(remove_simona, by = "Publication")
 
-# merger 
-me_pinf <- full_join(my_directory_clean, pinf_to_add_modify, by = c("Publication" = "Title")) |> left_join(PINF_data, by = c("Publication" = "Title"))
+# merger
+me_pinf <-
+  full_join(my_directory_clean,
+            pinf_to_add_modify,
+            by = c("Publication" = "Title")) |> left_join(PINF_data, by = c("Publication" = "Title"))
 
 # put it together
-not_me <- anti_join(PINF_clean, me_pinf, by = c("Title" = "Publication"))
+not_me <-
+  anti_join(PINF_clean, me_pinf, by = c("Title" = "Publication"))
 pinf_to_add <- simona_errors |> filter(str_detect(...12, "Max"))
-not_pinf <- anti_join(me_pinf, PINF_clean, by = c("Publication" = "Title")) |> anti_join(pinf_to_add, by = "Publication") |> filter(!str_detect(`Active/Closed`, "losed")|is.na(`Active/Closed`))
+not_pinf <-
+  anti_join(me_pinf, PINF_clean, by = c("Publication" = "Title")) |> anti_join(pinf_to_add, by = "Publication") |> filter(!str_detect(`Active/Closed`, "losed") |
+                                                                                                                            is.na(`Active/Closed`))
 
 # my directory final polishing (fix owner, remove redundant columns, ...)
-me_final <- me_pinf |> 
-  mutate(Owner = if_else(is.na(Owner.x), Owner.y, Owner.x)) |> 
-  mutate(Owner = if_else(Owner == "Presumed independent", Owner.y, Owner)) |> 
-  mutate(Owner = if_else(is.na(Owner), "Presumed independent", Owner)) |> 
-  filter(`Active/Closed` == "Active"|is.na(`Active/Closed`)) |> 
-  mutate(Website = if_else(str_detect(Website, "tag"), URL.y, Website),
-         Website = if_else(is.na(Website), URL.x, Website),
-         Website = if_else(is.na(Website), URL.y, Website),
-         Twitter = if_else(is.na(Twitter), `Twitter handle`, Twitter)) |> 
-  select(-c(Owner.x, Owner.y, `Active/Closed`, Comments.x, Comments.y, Action, `Add / Add but modify / not add - comments`, URL.x, URL.y, `Twitter handle`))
+me_final <- me_pinf |>
+  mutate(Owner = if_else(is.na(Owner.x), Owner.y, Owner.x)) |>
+  mutate(Owner = if_else(Owner == "Presumed independent", Owner.y, Owner)) |>
+  mutate(Owner = if_else(is.na(Owner), "Presumed independent", Owner)) |>
+  filter(`Active/Closed` == "Active" | is.na(`Active/Closed`)) |>
+  mutate(
+    Website = if_else(str_detect(Website, "tag"), URL.y, Website),
+    Website = if_else(is.na(Website), URL.x, Website),
+    Website = if_else(is.na(Website), URL.y, Website),
+    Twitter = if_else(is.na(Twitter), `Twitter handle`, Twitter)
+  ) |>
+  select(
+    -c(
+      Owner.x,
+      Owner.y,
+      `Active/Closed`,
+      Comments.x,
+      Comments.y,
+      Action,
+      `Add / Add but modify / not add - comments`,
+      URL.x,
+      URL.y,
+      `Twitter handle`
+    )
+  )
 
 write_csv(me_final, "directory_after_pinf_merge.csv")
 
 # after importing this on google sheets I fixed various small inconsistencies in publisher names, nas, frequency spellings, etc. So please find the updated sheet here: https://docs.google.com/spreadsheets/d/1TgCguyAr7EcJgl1vPZvKCFFWZ1zs3spfS6ZZ02ZrrIE/edit?usp=sharing
-
