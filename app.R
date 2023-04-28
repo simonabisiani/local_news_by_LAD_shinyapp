@@ -7,33 +7,33 @@ library(RColorBrewer)
 
 # Load your dataset
 observations <-
-  read_csv("files/Local news UK database - Titles.csv")
+  read.csv2(text = readLines("data.csv", warn = FALSE),header=T) 
 
 ############################### DATA
 
 data <- observations |>
   mutate(title_owner = paste0(Publication, " (", Owner, ")")) |> 
-  separate_rows(`coverage LAD`, sep = "; ") |>
-  group_by(`coverage LAD`) |>
+  separate_rows(coverage.LAD, sep = "; ") |>
+  group_by(coverage.LAD) |>
   mutate(
     tot_coverage_LAD = n(),
     tot_owner_coverage_LAD = length(unique(Owner))
   ) |>
   ungroup() |>
-  mutate(`coverage LAD` = if_else(
-    is.na(`coverage LAD`),
+  mutate(coverage.LAD = if_else(
+    is.na(coverage.LAD),
     "coverage location unknown",
-    `coverage LAD`
+    coverage.LAD
   )) |>
   select(
     c(
       title_owner,
       tot_coverage_LAD,
       tot_owner_coverage_LAD,
-      `coverage LAD`
+      coverage.LAD
     )
   ) |>
-  group_by(`coverage LAD`) |>
+  group_by(coverage.LAD) |>
   mutate(title_owner = paste0(unique(na.omit(title_owner)), collapse = " - ")) |>
   ungroup() |>
   distinct() |>
@@ -42,17 +42,17 @@ data <- observations |>
       replace_na(tot_coverage_LAD, 0),
     `Number of publishers` = replace_na(tot_owner_coverage_LAD, 0)
   ) |>
-  select(`coverage LAD`,
+  select(coverage.LAD,
          `Number of titles`,
          `Number of publishers`,
          title_owner) |>
-  mutate(across(.cols = everything(), ~ replace_na(., ""))) |>
-  arrange(`coverage LAD`) |>
-  rename("Local Authority District" = `coverage LAD`,
+  #mutate(across(.cols = everything(), ~ replace_na(., ""))) |>
+  arrange(coverage.LAD) |>
+  rename("Local Authority District" = coverage.LAD,
          "Title (Publisher)" = title_owner) 
 
-data |> 
-  write_sheet(ss = 'https://docs.google.com/spreadsheets/d/1TgCguyAr7EcJgl1vPZvKCFFWZ1zs3spfS6ZZ02ZrrIE/edit#gid=652214043', sheet = "LAD")
+# data |> 
+#   write_sheet(ss = 'https://docs.google.com/spreadsheets/d/1TgCguyAr7EcJgl1vPZvKCFFWZ1zs3spfS6ZZ02ZrrIE/edit#gid=652214043', sheet = "LAD")
 
 # USE THE ABOVE FOR SCATTERPLOT OF LOW HIGH TITLE/PUBLISHERS?
 
@@ -60,7 +60,8 @@ data2 <- observations |>
   rename("Type of owner" = Owner_type) |>
   select(
     c(1:12)
-  ) 
+  ) |> 
+  arrange(Publication)
 
 ############################### UI
 

@@ -86,7 +86,7 @@ observations <-
 
 # NEWSROOM LOCATIONS
 office_locations <- observations |>
-  group_by(latitude) |>
+  group_by(`Office / Newsroom Address`) |>
   summarise(across(everything(),
                    ~ paste0(unique(na.omit(
                      .x
@@ -141,6 +141,9 @@ monopolies_count |> write_sheet(ss = 'https://docs.google.com/spreadsheets/d/1Tg
 geo_LAD <-
   read_csv("files/Local_Authority_Districts_(December_2022)_Boundaries_UK_BFE.csv")
 
+observations <- observations |> 
+  separate_rows(`coverage LAD`, sep = "; ") 
+
 counts_for_lads <- observations |>
   select(`coverage LAD`, Owner) |>
   group_by(`coverage LAD`) |>
@@ -172,7 +175,7 @@ counts_for_lads |> write_sheet(ss = 'https://docs.google.com/spreadsheets/d/1TgC
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# MAP OF TITLES BY LAD
+# MAP OF TITLES BY LAD AND NEWS DESERTS
 titles_by_lad <-
   observations |>
   group_by(`coverage LAD`) |>
@@ -200,8 +203,17 @@ titles_by_lad <-
     names_from = Owner,
     values_from = tot_owner_admin_district,
     id_cols = c(`coverage LAD`, Publication, Owner_long, tot_admin_district)
-  ) |>
-  select()
+  ) 
 
 # do not overwrite now unless sure of it
 titles_by_lad |> write_sheet(ss = 'https://docs.google.com/spreadsheets/d/1TgCguyAr7EcJgl1vPZvKCFFWZ1zs3spfS6ZZ02ZrrIE/edit#gid=652214043', sheet = "Titles/ Owners in LAD")
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+news_deserts <- titles_by_lad |> 
+  right_join(geo_LAD, by = c("coverage LAD" = "LAD22NM")) |> 
+  select(c(`coverage LAD`, Publication, Owner_long, tot_admin_district)) |> 
+  filter(is.na(Publication))
+
+# do not overwrite now unless sure of it
+news_deserts |> write_sheet(ss = 'https://docs.google.com/spreadsheets/d/1TgCguyAr7EcJgl1vPZvKCFFWZ1zs3spfS6ZZ02ZrrIE/edit#gid=652214043', sheet = "News Deserts")

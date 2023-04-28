@@ -5,9 +5,9 @@ account: simonabisiani
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8591783
-bundleId: 7102884
+bundleId: 7104330
 url: https://simonabisiani.shinyapps.io/local_news_by_LAD_shinyapp/
-when: 1681796688.29549
-lastSyncTime: 1681796688.29552
+when: 1681822692.92955
+lastSyncTime: 1681822692.92956
 asMultiple: FALSE
 asStatic: FALSE
